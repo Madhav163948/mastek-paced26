@@ -289,7 +289,7 @@
   /* ══════════════
      REPORT PAGE (Screen 4) — single viewport, 4 horizontal panels
   ══════════════ */
-  #screen-result { display:flex; flex-direction:column; }
+  #screen-result { flex-direction:column; }
   #screen-result.active { display:flex; }
 
   .rp-topbar-centre { display:flex; align-items:center; gap:10px; flex:1; justify-content:center; }
@@ -583,7 +583,7 @@
         <div class="a-dot-label"><span id="answered-count">0</span> of 6 answered</div>
       </div>
     </div>
-    <div class="tb-row2">📍 Public Finance Live 2026 · London</div>
+    <div class="tb-row2">📍 UCISA PACED26</div>
   </div>
 
   <div style="padding:20px 32px 4px;">
@@ -765,7 +765,7 @@
 <!-- ══ SCREEN 3 — CAPTURE ══ -->
 <div class="screen" id="screen-capture">
   <div class="top-bar">
-    <div class="tb-row2" style="border-top:none;">📍 Public Finance Live 2026 · London</div>
+    <div class="tb-row2" style="border-top:none;">📍 UCISA PACED26</div>
   </div>
   <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:60px 40px;">
     <div class="capture-icon">📊</div>
@@ -777,7 +777,7 @@
         <input class="form-field" type="text" placeholder="Last name *" id="lname">
       </div>
       <input class="form-field" type="email" placeholder="Work email address *" id="email" style="width:100%">
-      <input class="form-field optional" type="text" placeholder="Council / Organisation (optional)" id="council" style="width:100%">
+      <input class="form-field optional" type="text" placeholder="Institution / Organisation (optional)" id="council" style="width:100%">
       <button class="btn-primary" style="width:100%;margin-top:8px;" onclick="validateAndSubmit()">View my report →</button>
       <p class="capture-privacy">Your data is held securely and not shared with third parties. <a href="#">Privacy policy</a></p>
     </div>
@@ -886,16 +886,16 @@
 <div class="screen" id="screen-leaderboard">
   <div class="top-bar">
     <div class="tb-row1">
-      <div class="logo-area"><div class="logo-dot">AI</div><div class="logo-text">Council AI Finance Pulse 2026</div></div>
-      <div class="voter-count"><span id="lb-count">184</span> finance leaders voted</div>
+      <div class="logo-area"><div class="logo-dot">AI</div><div class="logo-text">Digital Maturity Assessment</div></div>
+      <div class="voter-count"><span id="lb-count">0</span> votes cast</div>
     </div>
-    <div class="tb-row2">📍 Public Finance Live 2026 · London</div>
+    <div class="tb-row2">📍 UCISA PACED26</div>
   </div>
   <div class="lb-body">
     <div class="lb-header">
       <div>
-        <h2 class="lb-title">What the sector wants<br>from <em>AI in finance</em></h2>
-        <p class="lb-subtitle">Public Finance Live 2026 · Real-time priority index · Updated as votes are cast</p>
+        <h2 class="lb-title">Where the sector stands<br>on <em>digital maturity</em></h2>
+        <p class="lb-subtitle">UCISA PACED26 · Updated as votes are cast</p>
       </div>
       <div class="live-badge"><div class="live-dot"></div> Live</div>
     </div>
@@ -1486,6 +1486,8 @@
     if (el && topCat) el.textContent = topCat[0];
     const te = document.getElementById('lb-total');
     if (te) te.textContent = total + ' votes';
+    const lc = document.getElementById('lb-count');
+    if (lc) lc.textContent = total;
   }
 
   function restartAssessment() {
