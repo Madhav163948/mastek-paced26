@@ -222,7 +222,7 @@ const LEADS_PREFIX = 'leads';
 const BOOKINGS_PREFIX = 'bookings';
 
 app.post('/api/save-lead', async (req, res) => {
-  const { firstName, lastName, email, organisation, answers } = req.body || {};
+  const { firstName, lastName, email, organisation, answers, emailReport } = req.body || {};
 
   if (!firstName || !firstName.trim() || !lastName || !lastName.trim()) {
     return res.status(400).json({ error: 'First and last name are required.' });
@@ -234,6 +234,8 @@ app.post('/api/save-lead', async (req, res) => {
     return res.status(400).json({ error: 'Please use your company/work email address, not a personal one (e.g. Gmail, Yahoo, Outlook).' });
   }
 
+  // "Email me my report" checkbox on the details form. Only a real tick
+  // (true) counts as Yes; the team sends these reports manually.
   const id = newRecordId();
   const lead = {
     Timestamp: new Date().toISOString(),
@@ -247,7 +249,7 @@ app.post('/api/save-lead', async (req, res) => {
     'Q4 - Finance': answers?.[3] || '',
     'Q5 - AI': answers?.[4] || '',
     'Q6 - Data': answers?.[5] || '',
-    'Requested Email Report': 'No',
+    'Requested Email Report': emailReport === true ? 'Yes' : 'No',
   };
 
   try {

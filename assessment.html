@@ -210,6 +210,8 @@
   .form-field.optional { opacity:0.7; }
   .capture-privacy { font-size:11px;color:var(--grey);margin-top:8px;text-align:center; }
   .capture-privacy a { color:var(--teal);text-decoration:none; }
+  .capture-optin { display:flex;align-items:center;gap:10px;margin:2px 0 8px;padding:4px 2px;font-size:14px;color:var(--off-white);cursor:pointer;user-select:none; }
+  .capture-optin input { width:20px;height:20px;margin:0;flex-shrink:0;accent-color:var(--gold);cursor:pointer; }
   .skip-link { display:block;text-align:center;margin-top:12px;background:none;border:none;color:var(--grey);font-size:13px;cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif; }
 
   /* ══════════════
@@ -782,6 +784,13 @@
       </div>
       <input class="form-field" type="email" placeholder="Work email address *" id="email" style="width:100%">
       <input class="form-field optional" type="text" placeholder="Institution / Organisation (optional)" id="council" style="width:100%">
+      <!-- Opt-in for the emailed report (unticked by default). It is saved on
+           the lead as "Requested Email Report" Yes/No; the team sends the
+           emails manually, so nothing is sent or shown to the visitor. -->
+      <label class="capture-optin" for="email-optin">
+        <input type="checkbox" id="email-optin">
+        <span>Email me my report</span>
+      </label>
       <button class="btn-primary" style="width:100%;margin-top:8px;" onclick="validateAndSubmit()">View my report →</button>
       <p class="capture-privacy">Your data is held securely and not shared with third parties. <a href="#">Privacy policy</a></p>
     </div>
@@ -861,9 +870,13 @@
         </div>
       </div>
 
-      <!-- Section 4: Next Step - hidden entirely in the PDF/print output (see @media print rules above), kept for the on-screen version -->
-      <div class="lcr-section-title lcr-next-step-title">Next Step</div>
-      <div class="lcr-next-step">
+      <!-- Section 4: Next Step - disabled for PACED26 (hidden, not deleted).
+           Visitors opt in with the "Email me my report" checkbox on the
+           details form instead, and the team emails reports manually, so
+           this button and its "Thank you" pop-up are not shown. To bring it
+           back, remove the two style="display:none" below. -->
+      <div class="lcr-section-title lcr-next-step-title" style="display:none">Next Step</div>
+      <div class="lcr-next-step" style="display:none">
         <button class="lcr-btn-report" onclick="emailMyReport()">Email my Digital Maturity Assessment Report →</button>
       </div>
 
@@ -1019,6 +1032,7 @@
     const lname   = document.getElementById('lname').value.trim();
     const email   = document.getElementById('email').value.trim();
     const council = document.getElementById('council').value.trim();
+    const emailOptIn = document.getElementById('email-optin').checked;
 
     let firstBadField = null;
     let emailErrorMsg = '';
@@ -1056,6 +1070,7 @@
         lastName: lname,
         email: email,
         organisation: council,
+        emailReport: emailOptIn, // "Email me my report" ticked -> saved as Yes
         answers: [1,2,3,4,5,6].map(q => answers[q] && usecaseData[answers[q]] ? usecaseData[answers[q]].name : ''),
       }),
     })
