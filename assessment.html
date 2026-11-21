@@ -547,9 +547,9 @@
 <body>
 
 <!-- ══ SCREEN 1 — WELCOME (unlinked) ══
-     Kept in the file but no longer shown: "Take the Assessment" on the
-     avatar page now opens straight onto the questions (screen-vote is the
-     active screen on load) and nothing navigates here any more. -->
+     Kept in the file but no longer shown: the page opens straight onto
+     the questions (screen-vote is the active screen on load) and nothing
+     navigates here any more. -->
 <div class="screen" id="screen-welcome">
   <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:60px 40px;text-align:center;">
     <div class="welcome-eyebrow" style="font-size:15px;">Public Finance Live 2026</div>
@@ -639,6 +639,10 @@
       <div class="uc-card" data-q="2" data-id="crm-lifecycle" onclick="pick(this)">
         <div class="check-badge">✓</div>
         <div class="card-option">Full lifecycle, including alumni</div>
+      </div>
+      <div class="uc-card" data-q="2" data-id="crm-dk" onclick="pick(this)">
+        <div class="check-badge">✓</div>
+        <div class="card-option">Don’t know</div>
       </div>
     </div>
   </div>
@@ -927,6 +931,7 @@
     'crm-admissions': { name:'Admissions only',                              cat:'CRM',     q:2, fill:'fill-coral',  catCls:'tag-coral',  votes:0 },
     'crm-enrolment':  { name:'Enquiry through to enrolment',                 cat:'CRM',     q:2, fill:'fill-coral',  catCls:'tag-coral',  votes:0 },
     'crm-lifecycle':  { name:'Full lifecycle, including alumni',             cat:'CRM',     q:2, fill:'fill-coral',  catCls:'tag-coral',  votes:0 },
+    'crm-dk':         { name:'Don’t know',                                   cat:'CRM',     q:2, fill:'fill-coral',  catCls:'tag-coral',  votes:0 },
     'hr-onprem':      { name:'On-premises, no move planned',                 cat:'HR',      q:3, fill:'fill-teal',   catCls:'tag-teal',   votes:0 },
     'hr-case':        { name:'On-premises, business case in progress',       cat:'HR',      q:3, fill:'fill-teal',   catCls:'tag-teal',   votes:0 },
     'hr-migrating':   { name:'Migration to SaaS under way',                  cat:'HR',      q:3, fill:'fill-teal',   catCls:'tag-teal',   votes:0 },
@@ -1267,6 +1272,7 @@
     'crm-multi':      { dim:'crm', score:35 },
     'crm-enrolment':  { dim:'crm', score:60 },
     'crm-lifecycle':  { dim:'crm', score:90 },
+    'crm-dk':         { dim:'crm', score:null },
 
     'hr-onprem':      { dim:'hr', score:15 },
     'hr-case':        { dim:'hr', score:35 },
@@ -1351,7 +1357,12 @@
     const band = bandLabel(overall);
 
     const headline = `Your responses point to a "${band}" digital maturity profile.`;
-    const desc = `${capLabels[best[0]]} is your strongest area (${best[1]}/100), while ${capLabels[worst[0]]} shows the greatest opportunity (${worst[1]}/100) — that's the fastest place to see returns.`;
+    // Every question can now be answered "Don't know"; if all six were,
+    // there is no real strongest/weakest area to name.
+    const anyScored = entries.some(e => e.score != null);
+    const desc = anyScored
+      ? `${capLabels[best[0]]} is your strongest area (${best[1]}/100), while ${capLabels[worst[0]]} shows the greatest opportunity (${worst[1]}/100) — that's the fastest place to see returns.`
+      : `You weren’t sure where any of the six areas stand today, so this score is a neutral midpoint — establishing a clear baseline is the first step.`;
 
     const executiveSummary = entries.map(e => ({ icon: iconForCat(e.cat), text: `${capLabels[e.dim]}: ${e.name}` }));
 
@@ -1493,12 +1504,11 @@
   function restartAssessment() {
     // A kiosk needs a genuinely clean slate for the next visitor - rather
     // than manually resetting every piece of state (selected answers,
-    // rendered charts, capture form fields, computed report), sending
-    // them all the way back to the avatar greeting (rather than straight
-    // into a fresh assessment) restarts the full kiosk loop the same way
-    // it starts for every new visitor.
+    // rendered charts, capture form fields, computed report), reloading
+    // the page gives the next visitor a fresh set of questions. (The avatar
+    // greeting is disabled for PACED26.)
     if (confirm('Start a new assessment for the next visitor? This will clear the current report.')) {
-      window.location.href = '/avatar.html';
+      window.location.href = '/assessment.html';
     }
   }
 

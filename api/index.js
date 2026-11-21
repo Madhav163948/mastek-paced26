@@ -572,12 +572,16 @@ app.post('/api/email-report', emailLimiter, async (req, res) => {
 // ============================================
 const ROOT = path.join(__dirname, '..');
 
+// The avatar greeting is disabled for PACED26: the app link opens straight
+// onto the questions, and /avatar.html redirects there too. avatar.html is
+// kept in the project - to re-enable it, serve it here again and remove the
+// /avatar.html redirect in vercel.json.
 app.get('/', (req, res) => {
-  res.sendFile(path.join(ROOT, 'avatar.html'));
+  res.sendFile(path.join(ROOT, 'assessment.html'));
 });
 
 app.get('/avatar.html', (req, res) => {
-  res.sendFile(path.join(ROOT, 'avatar.html'));
+  res.redirect('/assessment.html');
 });
 
 app.get('/assessment.html', (req, res) => {
