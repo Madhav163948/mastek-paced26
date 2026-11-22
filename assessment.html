@@ -1118,6 +1118,15 @@
     showScreen('screen-result');
   }
 
+  // Read by book-session.html (through window.opener) so the booking form
+  // opens already filled with the details this visitor just entered.
+  // Nothing is stored in the browser, so the next visitor never sees them.
+  function getBookingPrefill() {
+    if (!capturedLead) return null;
+    const { firstName, lastName, email, organisation } = capturedLead;
+    return { firstName, lastName, email, organisation };
+  }
+
   function openBooking() {
     // Opens in a new tab so they don't lose their place on the report/leaderboard.
     window.open('/book-session.html', '_blank');

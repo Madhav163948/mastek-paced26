@@ -169,6 +169,27 @@
         btn.textContent = 'Request a Session';
       });
   }
+
+  // Pre-fill the visitor's details from the report tab that opened this page,
+  // so they don't type them twice. Every field stays editable; phone and the
+  // message are left empty. If the page is opened any other way, the form
+  // starts empty as before.
+  (function prefillFromAssessment() {
+    let d = null;
+    try {
+      if (window.opener && typeof window.opener.getBookingPrefill === 'function') {
+        d = window.opener.getBookingPrefill();
+      }
+    } catch (e) {
+      // opener closed or not this site - leave the form empty
+    }
+    if (!d) return;
+    const fill = (id, value) => { if (value) document.getElementById(id).value = String(value); };
+    fill('b-fname', d.firstName);
+    fill('b-lname', d.lastName);
+    fill('b-email', d.email);
+    fill('b-org', d.organisation);
+  })();
 </script>
 </body>
 </html>
