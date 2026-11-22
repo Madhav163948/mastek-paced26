@@ -210,8 +210,15 @@
   .form-field.optional { opacity:0.7; }
   .capture-privacy { font-size:11px;color:var(--grey);margin-top:8px;text-align:center; }
   .capture-privacy a { color:var(--teal);text-decoration:none; }
-  .capture-optin { display:flex;align-items:center;gap:10px;margin:2px 0 8px;padding:4px 2px;font-size:14px;color:var(--off-white);cursor:pointer;user-select:none; }
-  .capture-optin input { width:20px;height:20px;margin:0;flex-shrink:0;accent-color:var(--gold);cursor:pointer; }
+  /* "Email me my report" - custom checkbox styled like the form fields
+     (same glass background/border, teal on hover/focus) with a gold tick
+     to match the "View my report" button. */
+  .capture-optin { display:flex;align-items:center;gap:12px;margin:4px 0 12px;padding:2px;font-family:'Inter',sans-serif;font-size:14px;color:var(--grey);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent; }
+  .capture-optin span { transition:color 0.2s; }
+  .capture-optin input { -webkit-appearance:none;appearance:none;width:22px;height:22px;margin:0;flex-shrink:0;border-radius:7px;cursor:pointer; background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.18); transition:background 0.2s,border-color 0.2s,box-shadow 0.2s; }
+  .capture-optin:hover input, .capture-optin input:focus-visible { border-color:var(--teal);outline:none; }
+  .capture-optin input:checked { border-color:var(--gold);box-shadow:0 4px 14px rgba(201,168,76,0.3); background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-6.5' fill='none' stroke='%230B1F3A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat, linear-gradient(135deg,var(--gold),var(--gold-light)); }
+  .capture-optin:hover span, .capture-optin input:checked + span { color:var(--off-white); }
   .skip-link { display:block;text-align:center;margin-top:12px;background:none;border:none;color:var(--grey);font-size:13px;cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif; }
 
   /* ══════════════
