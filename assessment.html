@@ -907,19 +907,21 @@
       </div>
 
       <!-- Section 4: Next Step (on screen only; hidden in print/PDF).
-           "Email me my report" records the request on the visitor's lead
-           ("Requested Email Report" = Yes), the same as the checkbox on the
-           details form - the team sends the emails manually, so no pop-up
-           is shown; the button itself confirms. "Book a Session" opens the
-           same pre-filled booking form as the button in the top bar. -->
+           "Book a Session" opens the same pre-filled booking form as the
+           button in the top bar.
+           "Email me my report" is HIDDEN for PACED26 (not deleted - the
+           checkbox on the details form is the only way to ask for the report).
+           It records the request on the visitor's lead ("Requested Email
+           Report" = Yes); to bring it back remove its display:none and add
+           the email wording back to the line above the buttons. -->
       <div class="lcr-section-title lcr-next-step-title">Next Step</div>
       <div class="lcr-next-step">
         <div class="lcr-ns-text">
           <div class="lcr-ns-title">Take your results further</div>
-          <div class="lcr-ns-desc">Get a copy of this report by email, or book a session with our team to talk through your priorities.</div>
+          <div class="lcr-ns-desc">Book a session with our team to talk through your priorities.</div>
         </div>
         <div class="lcr-ns-actions">
-          <button class="lcr-btn-report lcr-btn-email" id="lcr-email-btn" onclick="emailMyReport()">Email me my report</button>
+          <button class="lcr-btn-report lcr-btn-email" id="lcr-email-btn" onclick="emailMyReport()" style="display:none">Email me my report</button>
           <button class="lcr-btn-report" onclick="openBooking()">Book a Session →</button>
         </div>
       </div>
