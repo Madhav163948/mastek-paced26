@@ -449,6 +449,14 @@
   .lcr-ns-desc { font-size:13px; color:rgba(255,255,255,0.55); line-height:1.5; }
   .lcr-btn-report { background:var(--gold); color:var(--navy); font-size:14px; font-weight:800; white-space:nowrap; padding:14px 26px; border-radius:50px; border:none; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
   .lcr-btn-report:hover { background:var(--gold-light); }
+  /* Next Step box: text on the left, "Email me my report" (teal outline,
+     like New Assessment) and "Book a Session" (gold) on the right. */
+  .lcr-ns-text { flex:1 1 300px; min-width:0; }
+  .lcr-ns-actions { display:flex; gap:12px; flex-wrap:wrap; }
+  .lcr-btn-email { background:rgba(0,180,180,0.12); border:1.5px solid var(--teal); color:var(--teal-light); }
+  .lcr-btn-email:hover { background:rgba(0,180,180,0.22); }
+  .lcr-btn-email.is-done, .lcr-btn-email.is-done:hover { background:rgba(46,204,113,0.1); border-color:rgba(46,204,113,0.45); color:var(--green); cursor:default; }
+  .lcr-btn-report:disabled { cursor:default; }
 
   .lcr-footer { border-top:1px solid rgba(255,255,255,0.09); margin-top:40px; padding-top:18px; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--grey); flex-wrap:wrap; gap:6px; }
 
@@ -898,14 +906,22 @@
         </div>
       </div>
 
-      <!-- Section 4: Next Step - disabled for PACED26 (hidden, not deleted).
-           Visitors opt in with the "Email me my report" checkbox on the
-           details form instead, and the team emails reports manually, so
-           this button and its "Thank you" pop-up are not shown. To bring it
-           back, remove the two style="display:none" below. -->
-      <div class="lcr-section-title lcr-next-step-title" style="display:none">Next Step</div>
-      <div class="lcr-next-step" style="display:none">
-        <button class="lcr-btn-report" onclick="emailMyReport()">Email my Digital Maturity Assessment Report →</button>
+      <!-- Section 4: Next Step (on screen only; hidden in print/PDF).
+           "Email me my report" records the request on the visitor's lead
+           ("Requested Email Report" = Yes), the same as the checkbox on the
+           details form - the team sends the emails manually, so no pop-up
+           is shown; the button itself confirms. "Book a Session" opens the
+           same pre-filled booking form as the button in the top bar. -->
+      <div class="lcr-section-title lcr-next-step-title">Next Step</div>
+      <div class="lcr-next-step">
+        <div class="lcr-ns-text">
+          <div class="lcr-ns-title">Take your results further</div>
+          <div class="lcr-ns-desc">Get a copy of this report by email, or book a session with our team to talk through your priorities.</div>
+        </div>
+        <div class="lcr-ns-actions">
+          <button class="lcr-btn-report lcr-btn-email" id="lcr-email-btn" onclick="emailMyReport()">Email me my report</button>
+          <button class="lcr-btn-report" onclick="openBooking()">Book a Session →</button>
+        </div>
       </div>
 
       <div class="lcr-footer">
@@ -960,6 +976,7 @@
   const answers = {};
   let capturedLead = null;   // { firstName, lastName, email, organisation } - set once the capture form is submitted
   let currentReport = null; // latest rendered report object, used when emailing the report
+  let leadSavePromise = null; // the in-flight /api/save-lead request for this visitor
   // Option names are the exact PDF wording - they are what gets saved to the
   // lead record and sent to the AI. Votes start at 0 (no seeded numbers).
   const usecaseData = {
@@ -1083,14 +1100,17 @@
     }
 
     leadCaptured = true;
-    capturedLead = { firstName: fname, lastName: lname, email, organisation: council };
+    capturedLead = { firstName: fname, lastName: lname, email, organisation: council, emailRequested: emailOptIn };
+    syncEmailButton(); // ticked the checkbox -> report's email button already shows "requested"
 
     const orgEl = document.getElementById('lcr-org');
     if (orgEl) orgEl.textContent = council || 'Your Organisation';
     const profileOrgEl = document.getElementById('lcr-profile-org');
     if (profileOrgEl) profileOrgEl.textContent = council || 'Your Organisation';
 
-    fetch('/api/save-lead', {
+    // Kept so the report's "Email me my report" button can wait for the
+    // lead to be saved before flagging it.
+    leadSavePromise = fetch('/api/save-lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1214,36 +1234,53 @@
       </div>`).join('');
   }
 
-  // "Email my customised AI Assessment Report" CTA - actually sends the
-  // report to the address captured on the capture screen, then shows the
-  // thank-you modal once the email has genuinely gone out.
-  function emailMyReport() {
-    const btn = document.querySelector('.lcr-btn-report');
+  // Report's "Email me my report" button: shows "requested" once the
+  // visitor has asked for the email (here or via the details-form checkbox).
+  function syncEmailButton() {
+    const btn = document.getElementById('lcr-email-btn');
+    if (!btn) return;
+    const done = !!(capturedLead && capturedLead.emailRequested);
+    btn.disabled = done;
+    btn.classList.toggle('is-done', done);
+    btn.textContent = done ? '✓ We’ll email your report' : 'Email me my report';
+  }
+
+  // "Email me my report" on the report (PACED26): records the request on
+  // the visitor's lead ("Requested Email Report" = Yes), exactly like the
+  // checkbox on the details form. The team sends the emails manually, so
+  // nothing is emailed here and no pop-up is shown - the button confirms.
+  async function emailMyReport() {
+    const btn = document.getElementById('lcr-email-btn');
     if (!capturedLead || !capturedLead.email) {
       alert('Please enter your details first.');
       return;
     }
+    if (capturedLead.emailRequested) return;
 
-    const originalLabel = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'Sending…';
+    btn.textContent = 'Saving…';
+    try {
+      await leadSavePromise; // the lead must exist before it can be flagged
+      const r = await fetch('/api/mark-email-requested', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: capturedLead.id, email: capturedLead.email }),
+      });
+      const data = await r.json();
+      if (!r.ok || data.message !== 'Flagged.') throw new Error(data.error || data.message || 'not flagged');
+      capturedLead.emailRequested = true;
+      syncEmailButton();
+    } catch (err) {
+      console.error('Could not record the email request:', err);
+      btn.disabled = false;
+      btn.textContent = 'Not saved – tap to try again';
+    }
+  }
 
-    // The visitor always sees a "request received" confirmation - their
-    // lead is already safely stored via /api/save-lead regardless of
-    // whether the email itself goes out. The actual send is still
-    // attempted here in the background; failures are logged to the
-    // console (visible to us during testing/ops) rather than shown to
-    // the visitor, since a flaky mailbox shouldn't block or worry them
-    // at a live event.
-    // Flag this lead as having requested the emailed report - fired
-    // regardless of whether the actual send below succeeds, since we
-    // want to capture intent for follow-up either way.
-    fetch('/api/mark-email-requested', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: capturedLead.id, email: capturedLead.email }),
-    }).catch(err => console.error('Failed to flag email request (non-blocking):', err));
-
+  // Automatic email send + "Thank you" pop-up - NOT used for PACED26 (the
+  // team emails reports manually). Kept for later: once the SMTP mailbox is
+  // set up in Vercel, call sendReportEmail() from emailMyReport().
+  function sendReportEmail() {
     fetch('/api/email-report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1268,8 +1305,6 @@
         const emailEl = document.getElementById('lcr-modal-email');
         if (emailEl) emailEl.textContent = capturedLead.email;
         document.getElementById('lcr-modal-overlay').classList.add('active');
-        btn.disabled = false;
-        btn.textContent = originalLabel;
       });
   }
   function closeLcrModal() {
