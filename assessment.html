@@ -839,13 +839,14 @@
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
         <button class="btn-leaderboard" style="padding:7px 16px;font-size:12px;" onclick="restartAssessment()">↺ New Assessment</button>
-        <!-- Leaderboard and Download PDF are hidden for PACED26 (not deleted):
-             the buttons, the leaderboard screen and downloadReportPdf() are all
-             still in this file. To bring a button back, remove its
-             "display:none;" below. -->
+        <!-- Leaderboard, Download PDF and Book a Session are hidden from the top
+             bar for PACED26 (not deleted): the buttons, the leaderboard screen,
+             downloadReportPdf() and openBooking() are all still in this file.
+             Visitors book from the "Next Step" box at the bottom of the report.
+             To bring a button back, remove its "display:none;" below. -->
         <button class="btn-leaderboard" style="display:none;padding:7px 16px;font-size:12px;" onclick="showScreen('screen-leaderboard')">Leaderboard →</button>
         <button class="btn-leaderboard" style="display:none;padding:7px 16px;font-size:12px;" onclick="downloadReportPdf()">⬇ Download PDF</button>
-        <button class="btn-primary" style="padding:7px 18px;font-size:12px;" onclick="openBooking()">Book a Session</button>
+        <button class="btn-primary" style="display:none;padding:7px 18px;font-size:12px;" onclick="openBooking()">Book a Session</button>
       </div>
     </div>
   </div>
